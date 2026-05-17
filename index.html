@@ -25,7 +25,7 @@
             box-shadow: 0 0 20px #0f0a;
             text-align: center;
             width: 100%;
-            max-width: 500px;
+            max-width: 900px;
         }
         h2 {
             color: #0f0;
@@ -61,11 +61,7 @@
             font-family: monospace;
             transition: 0.2s;
         }
-        button:hover {
-            background: #2e2;
-            transform: scale(1.02);
-            box-shadow: 0 0 8px #0f0;
-        }
+        button:hover { background: #2e2; transform: scale(1.02); box-shadow: 0 0 8px #0f0; }
         .tiny-button {
             position: fixed;
             bottom: 12px;
@@ -79,13 +75,8 @@
             font-family: monospace;
             z-index: 100;
             border: 1px solid #444;
-            transition: 0.2s;
         }
-        .tiny-button:hover {
-            background: #0a0;
-            color: black;
-            border-color: #0f0;
-        }
+        .tiny-button:hover { background: #0a0; color: black; border-color: #0f0; }
         .embed-area {
             margin-top: 40px;
             display: flex;
@@ -97,51 +88,29 @@
         }
         .embed-card {
             flex: 1;
-            min-width: 250px;
+            min-width: 280px;
             background: #000000aa;
             border-radius: 16px;
             padding: 8px;
             border: 1px solid #0f0;
         }
-        .embed-title {
-            color: #8f8;
-            font-size: 12px;
-            margin-bottom: 6px;
-            text-align: center;
+        .embed-title { color: #8f8; font-size: 12px; margin-bottom: 6px; text-align: center; }
+        .archive-video {
+            width: 100%;
+            height: auto;
+            max-height: 250px;
+            border-radius: 12px;
+            outline: none;
         }
-        .hidden-embed { display: none; }
         .youtube-player {
             width: 100%;
             aspect-ratio: 16/9;
             border-radius: 12px;
         }
-
-        /* 🔥 RICKROLL OVERLAY */
-        #rickRollOverlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: black;
-            z-index: 9999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        #rickVideo {
-            width: 100%;
-            max-height: 80vh;
-        }
-        #rickRollOverlay button {
-            margin-top: 20px;
-            padding: 15px 30px;
-            font-size: 20px;
-            cursor: pointer;
-        }
+        .hidden-embed { display: none; }
     </style>
 </head>
 <body>
-
 <div class="lock-container">
     <h2>⚡ KODEINNGANG ⚡</h2>
     <div class="code-box">
@@ -149,27 +118,30 @@
         <br>
         <button id="unlockBtn">🚀 LÅS OPP</button>
     </div>
-
-    <div id="rickrollEmbed" class="embed-area hidden-embed"></div>
+    <div id="rickrollEmbed" class="embed-area hidden-embed">
+        <div class="embed-card">
+            <div class="embed-title">📼 ARCHIVE.ORG (muted)</div>
+            <video id="archiveVideo" class="archive-video" playsinline controls muted>
+                <source src="https://dn721809.ca.archive.org/0/items/youtube-xvFZjo5PgG0/xvFZjo5PgG0.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="embed-card">
+            <div class="embed-title">🎬 YOUTUBE (autoplay med lyd)</div>
+            <div id="youtubePlayerContainer" class="youtube-player"></div>
+        </div>
+    </div>
 </div>
-
 <div class="tiny-button" id="fakeCodeBtn">🔍 se kode</div>
 
-<!-- 🔥 FULLSKJERM RICKROLL -->
-<div id="rickRollOverlay">
-    <video id="rickVideo" playsinline loop>
-        <source src="https://dn721809.ca.archive.org/0/items/youtube-xvFZjo5PgG0/xvFZjo5PgG0.mp4" type="video/mp4">
-    </video>
-    <button onclick="location.reload()">PRØV IGJEN</button>
-</div>
-
 <script src="https://www.youtube.com/iframe_api"></script>
-
 <script>
     let realCode = '';
+    let ytPlayer = null;
+    let rickrollShown = false;
     const codeInput = document.getElementById('codeInput');
     const unlockBtn = document.getElementById('unlockBtn');
     const rickrollDiv = document.getElementById('rickrollEmbed');
+    const archiveVideo = document.getElementById('archiveVideo');
 
     function updateMask() {
         let masked = '•'.repeat(realCode.length);
@@ -214,37 +186,12 @@
         }
     });
 
-    let ytPlayer = null;
-    let isRickrollShown = false;
-
-    window.onYouTubeIframeAPIReady = function() {};
-
-    /* 🎬 YOUTUBE + 📼 ARCHIVE (embed) */
     function showRickroll() {
-        if (isRickrollShown) return;
-        isRickrollShown = true;
-
+        if (rickrollShown) return;
+        rickrollShown = true;
         rickrollDiv.classList.remove('hidden-embed');
-        rickrollDiv.innerHTML = '';
 
-        // 📼 ARCHIVE (mp4 embed)
-        const archiveCard = document.createElement('div');
-        archiveCard.className = 'embed-card';
-        archiveCard.innerHTML =
-            '<div class="embed-title">📼 ARCHIVE.ORG</div>' +
-            '<video playsinline controls style="width:100%; border-radius:12px;">' +
-            '<source src="https://dn721809.ca.archive.org/0/items/youtube-xvFZjo5PgG0/xvFZjo5PgG0.mp4" type="video/mp4">' +
-            '</video>';
-        rickrollDiv.appendChild(archiveCard);
-
-        // 🎬 YOUTUBE (full API)
-        const youtubeCard = document.createElement('div');
-        youtubeCard.className = 'embed-card';
-        youtubeCard.innerHTML =
-            '<div class="embed-title">🎬 YOUTUBE (autoplay med lyd)</div>' +
-            '<div id="youtubePlayerContainer" class="youtube-player"></div>';
-        rickrollDiv.appendChild(youtubeCard);
-
+        // Opprett YouTube-spiller FØR Archive for å prioritere lyd
         const container = document.getElementById('youtubePlayerContainer');
         if (container && typeof YT !== 'undefined' && YT.Player) {
             ytPlayer = new YT.Player(container, {
@@ -254,39 +201,35 @@
                     mute: 0,
                     controls: 1,
                     modestbranding: 1,
-                    rel: 0
+                    rel: 0,
+                    playsinline: 1
                 },
                 events: {
-                    onReady: e => e.target.playVideo(),
-                    onError: err => console.log("YouTube error", err)
+                    onReady: (event) => {
+                        event.target.playVideo();
+                    },
+                    onStateChange: (event) => {
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            console.log("YouTube spiller med lyd!");
+                        }
+                    }
                 }
             });
-        } else {
-            youtubeCard.innerHTML =
-                '<div class="embed-title">🎬 YOUTUBE</div>' +
-                '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0" ' +
-                'allow="autoplay; fullscreen" style="width:100%; height:200px; border:none; border-radius:12px;"></iframe>';
         }
 
+        // Vent litt med Archive for at YouTube skal få lydfokus
         setTimeout(() => {
-            rickrollDiv.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 100);
-    }
+            archiveVideo.muted = true;
+            archiveVideo.play().catch(e => console.log("Archive muted:", e));
+        }, 300);
 
-    /* 🔥 FULLSKJERM RICKROLL */
-    function triggerRickRoll() {
-        const overlay = document.getElementById('rickRollOverlay');
-        const video = document.getElementById('rickVideo');
-
-        overlay.style.display = 'flex';
-        video.play().catch(() => {
-            console.log("Autoplay blokkert – bruker må klikke");
-        });
+        setTimeout(() => {
+            rickrollDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
     }
 
     function checkCode() {
         if (realCode === "1234") {
-            triggerRickRoll();
             showRickroll();
         } 
         else if (realCode === "6769") {
@@ -300,13 +243,15 @@
     }
 
     unlockBtn.addEventListener('click', checkCode);
-
-    document.getElementById('fakeCodeBtn').addEventListener('click', () => {
-        triggerRickRoll();
+    const fakeBtn = document.getElementById('fakeCodeBtn');
+    fakeBtn.addEventListener('click', () => {
         showRickroll();
+        console.log("%c🎶 Rickroll med lyd! 🎶", "color: #0f0; font-size: 16px");
     });
-
     updateMask();
+
+    // For at YouTube API skal rekke å laste
+    window.onYouTubeIframeAPIReady = () => console.log("YouTube API klar");
 </script>
 </body>
 </html>
