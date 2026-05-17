@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>⚡ HACKER CLICKER ⚡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #0a0f1a 0%, #03060c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            border: 2px solid #0f0;
+            border-radius: 32px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3), inset 0 0 10px rgba(0, 255, 0, 0.2);
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 550px;
+            transition: all 0.2s;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0f0;
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            text-shadow: 0 0 8px #0f0;
+            margin-bottom: 0.5rem;
+            word-break: keep-all;
+        }
+
+        .sub {
+            text-align: center;
+            color: #6f6;
+            font-size: 0.7rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px dashed #0f0;
+            display: inline-block;
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+            padding-bottom: 5px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: #000000aa;
+            border: 1px solid #0f0;
+            border-radius: 20px;
+            padding: 12px;
+            flex: 1;
+            text-align: center;
+            box-shadow: 0 0 8px rgba(0,255,0,0.2);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #8f8;
+            letter-spacing: 2px;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+            font-family: monospace;
+        }
+
+        .click-zone {
+            background: #00000099;
+            border: 3px solid #0f0;
+            border-radius: 40px;
+            padding: 2rem;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: 0.05s linear;
+        }
+
+        .click-zone:active {
+            transform: scale(0.98);
+            background: #0f0a;
+            box-shadow: 0 0 25px #0f0;
+        }
+
+        .click-button {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #0f0;
+            text-shadow: 0 0 15px #0f0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: monospace;
+            transition: 0.05s;
+        }
+
+        .timer-bar {
+            height: 12px;
+            background: #1a2a1a;
+            border-radius: 20px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            width: 100%;
+            height: 100%;
+            background: #0f0;
+            box-shadow: 0 0 6px #0f0;
+            transition: width 0.04s linear;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .ctrl-btn {
+            background: #111;
+            border: 1px solid #0f0;
+            color: #0f0;
+            padding: 8px 18px;
+            font-family: monospace;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 40px;
+            transition: 0.1s;
+        }
+
+        .ctrl-btn:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        .highscore-list {
+            margin-top: 20px;
+            border-top: 1px solid #0f0;
+            padding-top: 15px;
+        }
+
+        .highscore-title {
+            font-size: 0.8rem;
+            color: #8f8;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        #highscoreTable {
+            width: 100%;
+            font-size: 0.8rem;
+            color: #bfb;
+            border-collapse: collapse;
+        }
+
+        #highscoreTable td, #highscoreTable th {
+            padding: 5px;
+            text-align: center;
+            border-bottom: 0.5px solid #2a5a2a;
+        }
+
+        .glow {
+            animation: pulse 0.3s ease-out;
+        }
+
+        @keyframes pulse {
+            0% { text-shadow: 0 0 0 #0f0; transform: scale(1);}
+            50% { text-shadow: 0 0 20px #0f0; transform: scale(1.1);}
+            100% { text-shadow: 0 0 5px #0f0; transform: scale(1);}
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.6rem;
+            color: #4a4;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>▶ GREEN CLICKER ◀</h1>
+    <div style="text-align: center;"><span class="sub">// reaksjon er makt //</span></div>
+
+    <div class="stats">
+        <div class="stat-card"><div class="stat-label">🔢 CLICKS</div><div class="stat-value" id="clickCount">0</div></div>
+        <div class="stat-card"><div class="stat-label">⏱️ BEST</div><div class="stat-value" id="bestScore">0</div></div>
+    </div>
+
+    <div class="click-zone" id="clickZone">
+        <div class="click-button" id="clickBtn">💀 KLIKK 💀</div>
+    </div>
+
+    <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width: 0%;"></div></div>
+
+    <div class="controls">
+        <button class="ctrl-btn" id="startBtn">⚡ START GAME ⚡</button>
+        <button class="ctrl-btn" id="resetHighscoreBtn">🔄 RESET HIGHSCORE</button>
+    </div>
+
+    <div class="highscore-list">
+        <div class="highscore-title">🏆 TOPP 5 🏆</div>
+        <table id="highscoreTable">
+            <tr><th>#</th><th>Score</th><th>Dato</th></tr>
+            <tr><td colspan="3" style="text-align:center;">– ingen rekorder –</td></tr>
+        </table>
+    </div>
+    <footer>🔒 Klikk så fort du kan! 10 sekunder kaos.</footer>
+</div>
+
+<script>
+    // --- Highscore håndtering (localstorage) ---
+    let highscores = [];
+    
+    function loadHighscores() {
+        const stored = localStorage.getItem("hackerClickerScores");
+        if(stored) {
+            highscores = JSON.parse(stored);
+        } else {
+            highscores = [];
+        }
+        highscores.sort((a,b) => b.score - a.score);
+        renderHighscores();
+    }
+    
+    function saveHighscore(score) {
+        const newEntry = {
+            score: score,
+            date: new Date().toLocaleDateString('nb-NO')
+        };
+        highscores.push(newEntry);
+        highscores.sort((a,b) => b.score - a.score);
+        if(highscores.length > 5) highscores = highscores.slice(0,5);
+        localStorage.setItem("hackerClickerScores", JSON.stringify(highscores));
+        renderHighscores();
+    }
+    
+    function renderHighscores() {
+        const table = document.getElementById("highscoreTable");
+        table.innerHTML = `<tr><th>#</th><th>Score</th><th>Dato</th></tr>`;
+        if(highscores.length === 0) {
+            table.innerHTML += `<tr><td colspan="3" style="text-align:center;">– ingen rekorder –</td></tr>`;
+        } else {
+            highscores.forEach((hs, idx) => {
+                const row = `<tr><td>${idx+1}</td><td style="color:#0f0; font-weight:bold;">${hs.score}</td><td>${hs.date}</td></tr>`;
+                table.innerHTML += row;
+            });
+        }
+        // oppdater "beste score" i stat-kort
+        const bestInList = highscores.length > 0 ? highscores[0].score : 0;
+        document.getElementById("bestScore").innerText = bestInList;
+    }
+    
+    function resetHighscores() {
+        if(confirm("🧨 Slett alle highscore-rekorder? Du vil miste all ære!")) {
+            highscores = [];
+            localStorage.setItem("hackerClickerScores", JSON.stringify(highscores));
+            renderHighscores();
+            document.getElementById("bestScore").innerText = "0";
+        }
+    }
+    
+    // --- Spillogikk ---
+    let gameActive = false;
+    let timeLeft = 0;
+    let currentClicks = 0;
+    let timerInterval = null;
+    
+    const clickCountSpan = document.getElementById("clickCount");
+    const startBtn = document.getElementById("startBtn");
+    const resetHighBtn = document.getElementById("resetHighscoreBtn");
+    const clickZoneDiv = document.getElementById("clickZone");
+    const timerFillDiv = document.getElementById("timerFill");
+    
+    function stopGame() {
+        if(timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        gameActive = false;
+        startBtn.innerText = "⚡ START GAME ⚡";
+    }
+    
+    function startGame() {
+        if(gameActive) return;
+        // reset verdier
+        currentClicks = 0;
+        timeLeft = 10.0;
+        updateClickDisplay();
+        updateTimerFill();
+        gameActive = true;
+        startBtn.innerText = "🔴 GAME ON 🔴";
+        
+        // start timer
+        if(timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if(!gameActive) return;
+            if(timeLeft <= 0.01) {
+                // spillet slutt
+                stopGame();
+                // lagre highscore hvis verdi > 0
+                if(currentClicks > 0) {
+                    saveHighscore(currentClicks);
+                    // ekstra gladeffekt
+                    alert(`💥 GAME OVER! 💥\nDu klarte ${currentClicks} klikk!\n✨ Ny rekord lagret! ✨`);
+                } else {
+                    alert("🕒 Tiden er ute... 0 klikk? Prøv igjen!");
+                }
+                // vis rekorder på nytt
+                renderHighscores();
+                return;
+            }
+            timeLeft -= 0.04; // ca 25 ganger i sekundet (glatt)
+            if(timeLeft < 0) timeLeft = 0;
+            updateTimerFill();
+        }, 40);
+    }
+    
+    function updateTimerFill() {
+        let percent = (timeLeft / 10) * 100;
+        timerFillDiv.style.width = percent + "%";
+        if(percent < 20) timerFillDiv.style.background = "#f66";
+        else timerFillDiv.style.background = "#0f0";
+    }
+    
+    function updateClickDisplay() {
+        clickCountSpan.innerText = currentClicks;
+        // liten animasjon
+        clickCountSpan.classList.add("glow");
+        setTimeout(() => clickCountSpan.classList.remove("glow"), 200);
+    }
+    
+    function handleClick() {
+        if(!gameActive) {
+            // man kan starte ved å klikke også?
+            // kult: hvis spillet ikke er aktivt, start det!
+            if(confirm("Spillet er ikke i gang. Vil du starte en runde?")) {
+                startGame();
+                // liten forsinkelse slik at klikket ikke telles med en gang
+                setTimeout(() => {
+                    if(gameActive) {
+                        currentClicks++;
+                        updateClickDisplay();
+                        // feedback animasjon på knappen
+                        const btn = document.getElementById("clickBtn");
+                        btn.style.transform = "scale(0.95)";
+                        setTimeout(() => btn.style.transform = "", 80);
+                    }
+                }, 50);
+            }
+            return;
+        }
+        // aktivt spill
+        currentClicks++;
+        updateClickDisplay();
+        // visuell feedback på klikkefelt
+        const btn = document.getElementById("clickBtn");
+        btn.style.transform = "scale(0.95)";
+        setTimeout(() => btn.style.transform = "", 80);
+        clickZoneDiv.style.backgroundColor = "#1f3a1f";
+        setTimeout(() => clickZoneDiv.style.backgroundColor = "", 60);
+    }
+    
+    // Event listeners
+    startBtn.addEventListener("click", startGame);
+    resetHighBtn.addEventListener("click", resetHighscores);
+    clickZoneDiv.addEventListener("click", handleClick);
+    
+    // For tastatur-entusiaster: mellomrom kan også klikke
+    document.body.addEventListener("keydown", (e) => {
+        if(e.code === "Space" || e.code === "Enter") {
+            e.preventDefault();
+            handleClick();
+        }
+    });
+    
+    // initialiser highscore
+    loadHighscores();
+    document.getElementById("bestScore").innerText = highscores.length > 0 ? highscores[0].score : 0;
+    
+    // liten kosmetikk: hover-lyd? nei.
+</script>
+</body>
+</html>
