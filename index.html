@@ -118,11 +118,35 @@
         .hidden-embed {
             display: none;
         }
-        /* Youtube-spiller */
         .youtube-player {
             width: 100%;
             aspect-ratio: 16/9;
             border-radius: 12px;
+        }
+
+        /* 🔥 RICKROLL OVERLAY (din kode) */
+        #rickRollOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: black;
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #rickVideo {
+            width: 100%;
+            max-height: 80vh;
+        }
+
+        #rickRollOverlay button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 20px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -141,7 +165,14 @@
 
 <div class="tiny-button" id="fakeCodeBtn">🔍 se kode</div>
 
-<!-- YouTube IFrame API -->
+<!-- 🔥 RICKROLL OVERLAY -->
+<div id="rickRollOverlay">
+    <video id="rickVideo" playsinline loop>
+        <source src="https://dn721809.ca.archive.org/0/items/youtube-xvFZjo5PgG0/xvFZjo5PgG0.mp4" type="video/mp4">
+    </video>
+    <button onclick="location.reload()">PRØV IGJEN</button>
+</div>
+
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
@@ -149,14 +180,13 @@
     const codeInput = document.getElementById('codeInput');
     const unlockBtn = document.getElementById('unlockBtn');
     const rickrollDiv = document.getElementById('rickrollEmbed');
-    
-    // Maskering
+
     function updateMask() {
         let masked = '•'.repeat(realCode.length);
         while (masked.length < 4) masked += '•';
         codeInput.value = masked;
     }
-    
+
     codeInput.addEventListener('keydown', (e) => {
         if (e.key === 'Backspace') {
             e.preventDefault();
@@ -183,7 +213,7 @@
             }
         }
     });
-    
+
     codeInput.addEventListener('paste', (e) => {
         e.preventDefault();
         let pasteData = (e.clipboardData || window.clipboardData).getData('text');
@@ -193,70 +223,31 @@
             updateMask();
         }
     });
-    
-    // Globale variabler for YouTube-spiller
+
     let ytPlayer = null;
     let isRickrollShown = false;
-    
-    // Funksjon som kalles når YouTube API er klar
-    window.onYouTubeIframeAPIReady = function() {
-        // Vi oppretter ikke spilleren før den skal vises
-    };
-    
+
+    window.onYouTubeIframeAPIReady = function() {};
+
     function showRickroll() {
         if (isRickrollShown) return;
         isRickrollShown = true;
-        
-        rickrollDiv.classList.remove('hidden-embed');
-        rickrollDiv.innerHTML = ''; // tøm
-        
-        // 1) Archive.org embed
-        const archiveCard = document.createElement('div');
-        archiveCard.className = 'embed-card';
-        archiveCard.innerHTML = '<div class="embed-title">📼 ARCHIVE.ORG</div><iframe src="https://archive.org/embed/youtube-xvFZjo5PgG0" allowfullscreen style="width:100%; height:200px; border:none; border-radius:12px;"></iframe>';
-        rickrollDiv.appendChild(archiveCard);
-        
-        // 2) YouTube med API – 100% autoplay med lyd
-        const youtubeCard = document.createElement('div');
-        youtubeCard.className = 'embed-card';
-        youtubeCard.innerHTML = '<div class="embed-title">🎬 YOUTUBE (autoplay med lyd)</div><div id="youtubePlayerContainer" class="youtube-player"></div>';
-        rickrollDiv.appendChild(youtubeCard);
-        
-        // Opprett YouTube-spilleren i containeren
-        const container = document.getElementById('youtubePlayerContainer');
-        if (container && typeof YT !== 'undefined' && YT.Player) {
-            ytPlayer = new YT.Player(container, {
-                videoId: 'dQw4w9WgXcQ',
-                playerVars: {
-                    autoplay: 1,
-                    mute: 0,
-                    controls: 1,
-                    modestbranding: 1,
-                    rel: 0
-                },
-                events: {
-                    onReady: function(event) {
-                        event.target.playVideo();
-                    },
-                    onError: function(err) {
-                        console.log("YouTube error", err);
-                    }
-                }
-            });
-        } else {
-            // Fallback: vanlig iframe hvis API ikke lastet
-            youtubeCard.innerHTML = '<div class="embed-title">🎬 YOUTUBE</div><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0" allow="autoplay; fullscreen" style="width:100%; height:200px; border:none; border-radius:12px;"></iframe>';
-        }
-        
-        // Scroll til videoene
-        setTimeout(() => {
-            rickrollDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
     }
-    
+
+    /* 🔥 DIN RICKROLL-FUNKSJON */
+    function triggerRickRoll() {
+        const overlay = document.getElementById('rickRollOverlay');
+        const video = document.getElementById('rickVideo');
+
+        overlay.style.display = 'flex';
+        video.play().catch(error => {
+            console.log("Autoplay ble blokkert av nettleseren. Brukeren må klikke først!");
+        });
+    }
+
     function checkCode() {
         if (realCode === "1234") {
-            showRickroll();
+            triggerRickRoll();  // 🔥 erstatter showRickroll()
         } 
         else if (realCode === "6769") {
             window.location.href = "game.html";
@@ -267,17 +258,16 @@
             updateMask();
         }
     }
-    
+
     unlockBtn.addEventListener('click', checkCode);
-    
+
     const fakeBtn = document.getElementById('fakeCodeBtn');
     fakeBtn.addEventListener('click', () => {
-        showRickroll();
+        triggerRickRoll();
         console.log("%c🎶 Du ble lurt! 🎶", "color: #0f0; font-size: 16px");
     });
-    
+
     updateMask();
-    console.log("%c🔐 Kodefelt viser kun ••••", "color: #0f0");
 </script>
 </body>
 </html>
