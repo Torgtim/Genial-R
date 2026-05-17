@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Kodelås</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background: #0a0f1a;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .lock-container {
+            background: #000000cc;
+            backdrop-filter: blur(4px);
+            border: 2px solid #0f0;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 0 20px #0f0a;
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+        h2 {
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+            letter-spacing: 2px;
+        }
+        .code-box {
+            margin: 30px 0;
+        }
+        .masked-input {
+            background: #111;
+            border: 2px solid #0f0;
+            color: #0f0;
+            font-size: 2rem;
+            padding: 12px;
+            text-align: center;
+            letter-spacing: 8px;
+            font-family: monospace;
+            width: 200px;
+            border-radius: 12px;
+            outline: none;
+            caret-color: #0f0;
+        }
+        .masked-input:focus {
+            box-shadow: 0 0 12px #0f0;
+        }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 10px 24px;
+            margin-top: 15px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-family: monospace;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #2e2;
+            transform: scale(1.02);
+            box-shadow: 0 0 8px #0f0;
+        }
+        .tiny-button {
+            position: fixed;
+            bottom: 12px;
+            right: 12px;
+            background: #222;
+            color: #888;
+            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: monospace;
+            z-index: 100;
+            border: 1px solid #444;
+            transition: 0.2s;
+        }
+        .tiny-button:hover {
+            background: #0a0;
+            color: black;
+            border-color: #0f0;
+        }
+        .embed-area {
+            margin-top: 40px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            border-top: 1px dashed #0f0a;
+            padding-top: 25px;
+        }
+        .embed-card {
+            flex: 1;
+            min-width: 250px;
+            background: #000000aa;
+            border-radius: 16px;
+            padding: 8px;
+            border: 1px solid #0f0;
+        }
+        .embed-title {
+            color: #8f8;
+            font-size: 12px;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+        .hidden-embed {
+            display: none;
+        }
+        /* Youtube-spiller */
+        .youtube-player {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="lock-container">
+    <h2>⚡ KODEINNGANG ⚡</h2>
+    <div class="code-box">
+        <input type="text" id="codeInput" class="masked-input" maxlength="4" placeholder="••••" autocomplete="off" inputmode="numeric">
+        <br>
+        <button id="unlockBtn">🚀 LÅS OPP</button>
+    </div>
+
+    <div id="rickrollEmbed" class="embed-area hidden-embed"></div>
+</div>
+
+<div class="tiny-button" id="fakeCodeBtn">🔍 se kode</div>
+
+<!-- YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+    let realCode = '';
+    const codeInput = document.getElementById('codeInput');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const rickrollDiv = document.getElementById('rickrollEmbed');
+    
+    // Maskering
+    function updateMask() {
+        let masked = '•'.repeat(realCode.length);
+        while (masked.length < 4) masked += '•';
+        codeInput.value = masked;
+    }
+    
+    codeInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace') {
+            e.preventDefault();
+            realCode = realCode.slice(0, -1);
+            updateMask();
+            return;
+        }
+        if (e.key === 'Delete') {
+            e.preventDefault();
+            realCode = '';
+            updateMask();
+            return;
+        }
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            checkCode();
+            return;
+        }
+        if (/^[0-9]$/.test(e.key)) {
+            e.preventDefault();
+            if (realCode.length < 4) {
+                realCode += e.key;
+                updateMask();
+            }
+        }
+    });
+    
+    codeInput.addEventListener('paste', (e) => {
+        e.preventDefault();
+        let pasteData = (e.clipboardData || window.clipboardData).getData('text');
+        let digits = pasteData.replace(/[^0-9]/g, '').slice(0, 4);
+        if (digits) {
+            realCode = digits;
+            updateMask();
+        }
+    });
+    
+    // Globale variabler for YouTube-spiller
+    let ytPlayer = null;
+    let isRickrollShown = false;
+    
+    // Funksjon som kalles når YouTube API er klar
+    window.onYouTubeIframeAPIReady = function() {
+        // Vi oppretter ikke spilleren før den skal vises
+    };
+    
+    function showRickroll() {
+        if (isRickrollShown) return;
+        isRickrollShown = true;
+        
+        rickrollDiv.classList.remove('hidden-embed');
+        rickrollDiv.innerHTML = ''; // tøm
+        
+        // 1) Archive.org embed
+        const archiveCard = document.createElement('div');
+        archiveCard.className = 'embed-card';
+        archiveCard.innerHTML = '<div class="embed-title">📼 ARCHIVE.ORG</div><iframe src="https://archive.org/embed/youtube-xvFZjo5PgG0" allowfullscreen style="width:100%; height:200px; border:none; border-radius:12px;"></iframe>';
+        rickrollDiv.appendChild(archiveCard);
+        
+        // 2) YouTube med API – 100% autoplay med lyd
+        const youtubeCard = document.createElement('div');
+        youtubeCard.className = 'embed-card';
+        youtubeCard.innerHTML = '<div class="embed-title">🎬 YOUTUBE (autoplay med lyd)</div><div id="youtubePlayerContainer" class="youtube-player"></div>';
+        rickrollDiv.appendChild(youtubeCard);
+        
+        // Opprett YouTube-spilleren i containeren
+        const container = document.getElementById('youtubePlayerContainer');
+        if (container && typeof YT !== 'undefined' && YT.Player) {
+            ytPlayer = new YT.Player(container, {
+                videoId: 'dQw4w9WgXcQ',
+                playerVars: {
+                    autoplay: 1,
+                    mute: 0,
+                    controls: 1,
+                    modestbranding: 1,
+                    rel: 0
+                },
+                events: {
+                    onReady: function(event) {
+                        event.target.playVideo();
+                    },
+                    onError: function(err) {
+                        console.log("YouTube error", err);
+                    }
+                }
+            });
+        } else {
+            // Fallback: vanlig iframe hvis API ikke lastet
+            youtubeCard.innerHTML = '<div class="embed-title">🎬 YOUTUBE</div><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0" allow="autoplay; fullscreen" style="width:100%; height:200px; border:none; border-radius:12px;"></iframe>';
+        }
+        
+        // Scroll til videoene
+        setTimeout(() => {
+            rickrollDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+    
+    function checkCode() {
+        if (realCode === "1234") {
+            showRickroll();
+        } 
+        else if (realCode === "6769") {
+            window.location.href = "game.html";
+        }
+        else if (realCode !== "") {
+            alert("❌ Feil kode.");
+            realCode = '';
+            updateMask();
+        }
+    }
+    
+    unlockBtn.addEventListener('click', checkCode);
+    
+    const fakeBtn = document.getElementById('fakeCodeBtn');
+    fakeBtn.addEventListener('click', () => {
+        showRickroll();
+        console.log("%c🎶 Du ble lurt! 🎶", "color: #0f0; font-size: 16px");
+    });
+    
+    updateMask();
+    console.log("%c🔐 Kodefelt viser kun ••••", "color: #0f0");
+</script>
+</body>
+</html>
