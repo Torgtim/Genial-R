@@ -229,10 +229,38 @@
 
     window.onYouTubeIframeAPIReady = function() {};
 
-    function showRickroll() {
-        if (isRickrollShown) return;
-        isRickrollShown = true;
-    }
+function showRickroll() {
+    if (isRickrollShown) return;
+    isRickrollShown = true;
+
+    rickrollDiv.classList.remove('hidden-embed');
+    rickrollDiv.innerHTML = '';
+
+    // 📼 Archive.org video
+    const archiveCard = document.createElement('div');
+    archiveCard.className = 'embed-card';
+    archiveCard.innerHTML =
+        '<div class="embed-title">📼 ARCHIVE.ORG</div>' +
+        '<video playsinline loop style="width:100%; border-radius:12px;">' +
+        '<source src="https://dn721809.ca.archive.org/0/items/youtube-xvFZjo5PgG0/xvFZjo5PgG0.mp4" type="video/mp4">' +
+        '</video>';
+    rickrollDiv.appendChild(archiveCard);
+
+    // 🎬 YouTube‑embed (som du hadde før)
+    const youtubeCard = document.createElement('div');
+    youtubeCard.className = 'embed-card';
+    youtubeCard.innerHTML =
+        '<div class="embed-title">🎬 YOUTUBE</div>' +
+        '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&mute=0" ' +
+        'allow="autoplay; fullscreen" style="width:100%; height:200px; border:none; border-radius:12px;"></iframe>';
+    rickrollDiv.appendChild(youtubeCard);
+
+    // Scroll ned til embed‑området
+    setTimeout(() => {
+        rickrollDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+}
+
 
     /* 🔥 DIN RICKROLL-FUNKSJON */
     function triggerRickRoll() {
